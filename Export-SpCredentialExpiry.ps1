@@ -43,7 +43,8 @@ function Invoke-GraphGetAll {
       if ($resp.value) { $all += $resp.value }
       $next = $resp.'@odata.nextLink'
     } catch {
-      Write-Host "Error during HTTP request to $next: $($_.Exception.Message)" -ForegroundColor Red
+      Write-Host "Error during HTTP request" -ForegroundColor Red
+      Write-Host $_.Exception.Message -ForegroundColor Red
       break
     }
   }
