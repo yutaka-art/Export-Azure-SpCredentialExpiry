@@ -18,9 +18,15 @@ param(
 
 # ------------- 共通: Graph 呼び出し準備 -------------
 Write-Host "Getting Microsoft Graph access token via Azure CLI..." -ForegroundColor Cyan
-$accessToken = (az account get-access-token --resource-type ms-graph --query accessToken -o tsv) 2>$null
-if ([string]::IsNullOrWhiteSpace($accessToken)) {
-  throw "Failed to acquire Graph access token. Please run: az login --tenant <your-tenant-id>"
+$azError = $null
+try {
+  $accessToken = az account get-access-token --resource-type ms-graph --query accessToken -o tsv 2>&1
+  if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($accessToken)) {
+    throw
+  }
+} catch {
+  $azError = $_
+  throw "Failed to acquire Graph access token. Please run: az login --tenant <your-tenant-id>`nError details: $azError"
 }
 $Headers = @{ Authorization = "Bearer $accessToken" }
 $GraphBase = "https://graph.microsoft.com/v1.0"
