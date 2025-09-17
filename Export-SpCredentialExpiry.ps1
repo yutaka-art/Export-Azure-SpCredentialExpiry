@@ -38,9 +38,14 @@ function Invoke-GraphGetAll {
   $all = @()
   $next = $Url
   while ($next) {
-    $resp = Invoke-RestMethod -Method GET -Uri $next -Headers $Headers -ErrorAction Stop
-    if ($resp.value) { $all += $resp.value }
-    $next = $resp.'@odata.nextLink'
+    try {
+      $resp = Invoke-RestMethod -Method GET -Uri $next -Headers $Headers -ErrorAction Stop
+      if ($resp.value) { $all += $resp.value }
+      $next = $resp.'@odata.nextLink'
+    } catch {
+      Write-Host "Error during HTTP request to $next: $($_.Exception.Message)" -ForegroundColor Red
+      break
+    }
   }
   return $all
 }
